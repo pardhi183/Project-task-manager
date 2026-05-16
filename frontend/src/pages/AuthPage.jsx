@@ -56,6 +56,10 @@ const AuthPage = ({ mode }) => {
           </div>
         </div>
         <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="maintenance-banner" role="status">
+            <strong>Maintenance notice</strong>
+            <span>Please do not login or register with Google while maintenance is active.</span>
+          </div>
           <div>
             <h2>{isSignup ? 'Create account' : 'Welcome back'}</h2>
             <p>{isSignup ? 'Start with an admin account or join as a member.' : 'Sign in to manage your workspace.'}</p>

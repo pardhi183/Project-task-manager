@@ -48,17 +48,17 @@ const DashboardPage = () => {
       </header>
       <ErrorNotice error={error} />
       <section className="metric-grid">
-        <article className="metric-card">
+        <article className="metric-card total">
           <ListTodo size={22} />
           <span>Total assigned</span>
           <strong>{total}</strong>
         </article>
-        <article className="metric-card">
+        <article className="metric-card pending">
           <Clock3 size={22} />
           <span>Pending</span>
           <strong>{counts.pending}</strong>
         </article>
-        <article className="metric-card">
+        <article className="metric-card completed">
           <CheckCircle2 size={22} />
           <span>Completed</span>
           <strong>{counts.completed}</strong>

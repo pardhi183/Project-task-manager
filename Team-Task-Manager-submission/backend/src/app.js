@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import { requireDatabase } from './middleware/databaseMiddleware.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 
 const app = express();
@@ -64,10 +65,10 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/tasks', taskRoutes);
+app.use('/api/auth', requireDatabase, authRoutes);
+app.use('/api/users', requireDatabase, userRoutes);
+app.use('/api/projects', requireDatabase, projectRoutes);
+app.use('/api/tasks', requireDatabase, taskRoutes);
 
 if (shouldServeClient && fs.existsSync(clientIndex)) {
   const assetsDir = path.join(clientDist, 'assets');
