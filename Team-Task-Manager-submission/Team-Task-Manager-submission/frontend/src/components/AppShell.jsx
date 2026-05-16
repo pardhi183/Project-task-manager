@@ -1,4 +1,4 @@
-import { FolderKanban, LayoutDashboard, LogOut } from 'lucide-react';
+import { FolderKanban, LayoutDashboard, LogOut, UserRound } from 'lucide-react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../state/AuthContext.jsx';
 
@@ -22,6 +22,10 @@ const AppShell = () => {
           </div>
         </div>
         <nav className="nav-list" aria-label="Primary">
+          <NavLink to="/profile">
+            <UserRound size={18} />
+            Profile
+          </NavLink>
           <NavLink to="/" end>
             <LayoutDashboard size={18} />
             Dashboard
@@ -36,8 +40,9 @@ const AppShell = () => {
             <strong>{user.name}</strong>
             <span>{user.email}</span>
           </div>
-          <button className="icon-button" onClick={handleLogout} title="Log out" aria-label="Log out">
+          <button className="logout-button" onClick={handleLogout} type="button">
             <LogOut size={18} />
+            Logout
           </button>
         </div>
       </aside>

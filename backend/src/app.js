@@ -42,7 +42,7 @@ app.use(helmet({
         directives: {
           'script-src': ["'self'", "'unsafe-inline'"],
           'style-src': ["'self'", "'unsafe-inline'"],
-          'img-src': ["'self'", 'data:', 'https://images.unsplash.com']
+          'img-src': ["'self'", 'data:', 'https:']
         }
       }
     : false

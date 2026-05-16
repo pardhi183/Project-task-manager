@@ -26,6 +26,39 @@ export const updateUserRole = async (req, res, next) => {
   }
 };
 
+export const getProfiles = async (req, res, next) => {
+  try {
+    const users = req.user.role === 'Admin'
+      ? await User.find().sort({ role: 1, name: 1 })
+      : [req.user];
+
+    res.json({ users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserProfile = async (req, res, next) => {
+  try {
+    const { name, designation, productivity, profilePicture } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      {
+        name,
+        designation,
+        productivity,
+        profilePicture
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ user });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deleteUser = async (req, res, next) => {
   try {
     if (req.params.userId === req.user.id) {

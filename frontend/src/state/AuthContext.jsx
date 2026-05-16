@@ -46,6 +46,10 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     isAdmin: user?.role === 'Admin',
+    updateStoredUser: (updatedUser) => {
+      localStorage.setItem('ttm_user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    },
     login: (payload) => authenticate('/auth/login', payload),
     signup: (payload) => authenticate('/auth/signup', payload),
     logout: () => {
