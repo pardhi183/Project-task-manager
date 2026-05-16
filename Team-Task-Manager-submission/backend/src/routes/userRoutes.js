@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, param } from 'express-validator';
-import { deleteUser, getProfiles, getUsers, updateUserProfile, updateUserRole } from '../controllers/userController.js';
+import { approveUser, deleteUser, getPendingApprovals, getProfiles, getUsers, getWelcomeMembers, updateUserProfile, updateUserRole } from '../controllers/userController.js';
 import { authorize, protect } from '../middleware/authMiddleware.js';
 import { validate } from '../middleware/validate.js';
 
@@ -10,6 +10,15 @@ router.use(protect);
 
 router.get('/', authorize('Admin'), getUsers);
 router.get('/profiles', getProfiles);
+router.get('/welcome-members', getWelcomeMembers);
+router.get('/pending-approvals', authorize('Admin'), getPendingApprovals);
+router.patch(
+  '/:userId/approve',
+  authorize('Admin'),
+  [param('userId').isMongoId().withMessage('Valid user id is required')],
+  validate,
+  approveUser
+);
 router.patch(
   '/:userId/profile',
   authorize('Admin'),

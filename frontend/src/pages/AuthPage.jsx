@@ -32,7 +32,12 @@ const AuthPage = ({ mode }) => {
 
     try {
       if (isSignup) {
-        await signup(form);
+        const result = await signup(form);
+        if (result?.approvalPending) {
+          window.alert('Approval pending from admin. You can login after admin approval.');
+          navigate('/login');
+          return;
+        }
       } else {
         await login({ email: form.email, password: form.password, role: form.role });
       }
@@ -41,6 +46,9 @@ const AuthPage = ({ mode }) => {
       setError(apiError);
       if (!isSignup && Number.isInteger(apiError.attemptsLeft)) {
         window.alert(`${apiError.message}`);
+      }
+      if (apiError.approvalPending) {
+        window.alert('Approval pending from admin. You can login after admin approval.');
       }
     } finally {
       setSaving(false);

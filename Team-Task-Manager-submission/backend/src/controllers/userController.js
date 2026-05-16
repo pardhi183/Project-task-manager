@@ -1,6 +1,7 @@
 import Project from '../models/Project.js';
 import Task from '../models/Task.js';
 import User from '../models/User.js';
+import { sendApprovalSms } from '../utils/sms.js';
 
 export const getUsers = async (_req, res, next) => {
   try {
@@ -33,6 +34,47 @@ export const getProfiles = async (req, res, next) => {
       : [req.user];
 
     res.json({ users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPendingApprovals = async (_req, res, next) => {
+  try {
+    const users = await User.find({ approvalStatus: 'Pending' }).sort({ approvalRequestedAt: 1, createdAt: 1 });
+    res.json({ users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getWelcomeMembers = async (_req, res, next) => {
+  try {
+    const users = await User.find({ firstPunchedInAt: { $exists: true, $ne: null } })
+      .sort({ firstPunchedInAt: -1 })
+      .limit(8);
+    res.json({ users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const approveUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.approvalStatus = 'Approved';
+    user.approvedAt = new Date();
+    await user.save({ validateBeforeSave: false });
+
+    const smsResult = await sendApprovalSms({ to: user.mobileNumber });
+    res.json({
+      user,
+      message: smsResult.delivered
+        ? 'Login credentials approved and phone message sent.'
+        : `Login credentials approved. SMS service is not configured. Message: ${smsResult.message}`
+    });
   } catch (error) {
     next(error);
   }

@@ -36,10 +36,14 @@ export const AuthProvider = ({ children }) => {
       body: payload
     });
 
-    localStorage.setItem('ttm_token', data.token);
-    localStorage.setItem('ttm_user', JSON.stringify(data.user));
-    setUser(data.user);
-    return data.user;
+    if (data.token && data.user) {
+      localStorage.setItem('ttm_token', data.token);
+      localStorage.setItem('ttm_user', JSON.stringify(data.user));
+      setUser(data.user);
+      return data.user;
+    }
+
+    return data;
   };
 
   const value = useMemo(() => ({

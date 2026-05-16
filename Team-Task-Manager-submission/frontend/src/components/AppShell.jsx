@@ -9,6 +9,8 @@ const AppShell = () => {
   const navigate = useNavigate();
   const [weather, setWeather] = useState({ temp: '--', label: 'Weather' });
   const [notifications, setNotifications] = useState([]);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [welcomeMembers, setWelcomeMembers] = useState([]);
   const [noticeForm, setNoticeForm] = useState({ title: '', message: '' });
 
   const weatherLabel = (code) => {
@@ -34,9 +36,19 @@ const AppShell = () => {
     setNotifications(data.notifications || []);
   };
 
+  const loadAdminPanels = async () => {
+    const requests = [apiRequest('/users/welcome-members')];
+    if (user.role === 'Admin') requests.push(apiRequest('/users/pending-approvals'));
+    const [welcomeData, approvalData] = await Promise.all(requests);
+    setWelcomeMembers(welcomeData.users || []);
+    if (approvalData) setPendingApprovals(approvalData.users || []);
+  };
+
   useEffect(() => {
     loadNotifications().catch(() => {});
+    loadAdminPanels().catch(() => {});
     const noticeTimer = window.setInterval(() => loadNotifications().catch(() => {}), 20000);
+    const panelTimer = window.setInterval(() => loadAdminPanels().catch(() => {}), 20000);
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -51,6 +63,7 @@ const AppShell = () => {
     const weatherTimer = window.setInterval(() => loadWeather().catch(() => {}), 10 * 60 * 1000);
     return () => {
       window.clearInterval(noticeTimer);
+      window.clearInterval(panelTimer);
       window.clearInterval(weatherTimer);
     };
   }, []);
@@ -75,6 +88,12 @@ const AppShell = () => {
   const readNotification = async (notificationId) => {
     await apiRequest(`/notifications/${notificationId}/read`, { method: 'PATCH' });
     await loadNotifications();
+  };
+
+  const approveAccount = async (userId) => {
+    const data = await apiRequest(`/users/${userId}/approve`, { method: 'PATCH' });
+    window.alert(data.message || 'Login credentials approved. You can login now.');
+    await loadAdminPanels();
   };
 
   return (
@@ -164,6 +183,22 @@ const AppShell = () => {
             </button>
           </form>
         )}
+        {user.role === 'Admin' && pendingApprovals.length > 0 && (
+          <section className="approval-panel">
+            <strong>Approval pending</strong>
+            {pendingApprovals.map((member) => (
+              <article className="approval-card" key={member._id}>
+                <div>
+                  <span>{member.name}</span>
+                  <small>{member.role} - {member.mobileNumber}</small>
+                </div>
+                <button className="secondary-button" type="button" onClick={() => approveAccount(member._id)}>
+                  Approve
+                </button>
+              </article>
+            ))}
+          </section>
+        )}
         <div className="notification-marquee">
           <div className="notification-track">
             {notifications.length === 0 ? (
@@ -181,6 +216,20 @@ const AppShell = () => {
             ))}
           </div>
         </div>
+        <section className="welcome-member-panel">
+          <strong>Welcome to new member</strong>
+          {welcomeMembers.length === 0 ? (
+            <span className="muted">No first punch-in yet.</span>
+          ) : welcomeMembers.map((member) => (
+            <article className="welcome-member-card" key={member._id}>
+              <img src={member.profilePicture || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%23ccfbf1"/><circle cx="40" cy="30" r="14" fill="%230f766e"/><path d="M15 72c5-20 15-30 25-30s20 10 25 30" fill="%230f766e"/></svg>'} alt={`${member.name} profile`} />
+              <div>
+                <span>{member.name}</span>
+                <small>{member.role}</small>
+              </div>
+            </article>
+          ))}
+        </section>
       </aside>
     </div>
   );

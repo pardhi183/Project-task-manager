@@ -54,6 +54,14 @@ const userSchema = new mongoose.Schema(
       max: 100,
       default: 0
     },
+    approvalStatus: {
+      type: String,
+      enum: ['Pending', 'Approved'],
+      default: 'Approved'
+    },
+    approvalRequestedAt: Date,
+    approvedAt: Date,
+    firstPunchedInAt: Date,
     role: {
       type: String,
       enum: ['Admin', 'User', 'Employee', 'Member'],

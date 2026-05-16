@@ -55,6 +55,12 @@ export const punchIn = async (req, res, next) => {
       punchInAt: new Date()
     });
 
+    const previousRecords = await Attendance.countDocuments({ user: req.user._id });
+    if (previousRecords === 1 && !req.user.firstPunchedInAt) {
+      req.user.firstPunchedInAt = attendance.punchInAt;
+      await req.user.save({ validateBeforeSave: false });
+    }
+
     return res.status(201).json({ attendance });
   } catch (error) {
     return next(error);

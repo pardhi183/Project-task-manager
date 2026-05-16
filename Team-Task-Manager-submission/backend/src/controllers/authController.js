@@ -30,9 +30,19 @@ export const signup = async (req, res, next) => {
       mobileNumber,
       password,
       role,
-      employeeId: role === 'Employee' ? employeeId : undefined
+      employeeId: role === 'Employee' ? employeeId : undefined,
+      approvalStatus: 'Pending',
+      approvalRequestedAt: new Date()
     });
-    authResponse(user, 201, res);
+    return res.status(202).json({
+      message: 'Approval pending from admin. You can login after admin approval.',
+      approvalPending: true,
+      user: {
+        name: user.name,
+        role: user.role,
+        mobileNumber: user.mobileNumber
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -58,6 +68,13 @@ export const login = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (user.approvalStatus === 'Pending') {
+      return res.status(403).json({
+        message: 'Approval pending from admin. You can login after admin approval.',
+        approvalPending: true
+      });
+    }
+
     if (user.failedLoginAttempts >= 5) {
       await createAdminLoginAlert(user, loginValue, 'Blocked');
       return res.status(423).json({
@@ -79,7 +96,6 @@ export const login = async (req, res, next) => {
 
     user.failedLoginAttempts = 0;
     await user.save({ validateBeforeSave: false });
-    await createAdminLoginAlert(user, loginValue, 'Successful');
     authResponse(user, 200, res);
   } catch (error) {
     next(error);
