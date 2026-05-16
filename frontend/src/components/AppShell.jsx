@@ -1,4 +1,4 @@
-import { Bell, CloudSun, FolderKanban, LayoutDashboard, LogOut, Send, UserRound } from 'lucide-react';
+import { ArrowLeft, Bell, CloudSun, FolderKanban, LayoutDashboard, LogOut, Send, UserRound, UsersRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../api/client.js';
@@ -100,11 +100,23 @@ const AppShell = () => {
             <FolderKanban size={18} />
             Projects
           </NavLink>
+          {user.role === 'Admin' && (
+            <>
+              <NavLink to="/manage-employees">
+                <UsersRound size={18} />
+                Manage Employee
+              </NavLink>
+              <NavLink to="/manage-users">
+                <UsersRound size={18} />
+                Manage Users
+              </NavLink>
+            </>
+          )}
         </nav>
         <section className="weather-card">
-          <CloudSun size={22} />
+          {user.role === 'Admin' && <CloudSun size={22} />}
           <div>
-            <strong>{weather.temp}°C</strong>
+            <strong>{weather.temp}&deg;C</strong>
             <span>{weather.label}</span>
           </div>
         </section>
@@ -120,11 +132,15 @@ const AppShell = () => {
         </div>
       </aside>
       <main className="main-content">
+        <button className="back-button" type="button" onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} />
+          Back
+        </button>
         <Outlet />
       </main>
       <aside className="notification-rail">
         <div className="notification-header">
-          <Bell size={18} />
+          {user.role === 'Admin' && <Bell size={18} />}
           <strong>Notifications</strong>
         </div>
         {user.role === 'Admin' && (

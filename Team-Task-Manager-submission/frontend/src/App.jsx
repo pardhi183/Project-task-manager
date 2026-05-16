@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
+import ManageProfilesPage from './pages/ManageProfilesPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import ProjectPage from './pages/ProjectPage.jsx';
 import ProjectsPage from './pages/ProjectsPage.jsx';
@@ -30,6 +31,8 @@ const App = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/" element={<DashboardPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/manage-employees" element={<ManageProfilesPage role="Employee" />} />
+          <Route path="/manage-users" element={<ManageProfilesPage role="User" />} />
           <Route path="/projects/:projectId" element={<ProjectPage />} />
         </Route>
       </Route>

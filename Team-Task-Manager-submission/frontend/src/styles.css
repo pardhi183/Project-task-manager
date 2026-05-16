@@ -317,10 +317,11 @@ textarea:focus {
   align-items: center;
   gap: 10px;
   padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(250, 204, 21, 0.38);
   border-radius: 8px;
-  background: linear-gradient(135deg, rgba(250, 204, 21, 0.2), rgba(14, 116, 144, 0.28));
+  background: linear-gradient(135deg, #f97316 0%, #0ea5e9 100%);
   color: #fff;
+  box-shadow: 0 18px 36px rgba(14, 165, 233, 0.22);
 }
 
 .weather-card strong,
@@ -379,6 +380,21 @@ textarea:focus {
   padding: 32px;
 }
 
+.back-button {
+  width: fit-content;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #eff6ff 0%, #ecfeff 100%);
+  color: #1d4ed8;
+  font-weight: 900;
+}
+
 .notification-rail {
   position: sticky;
   top: 0;
@@ -387,15 +403,18 @@ textarea:focus {
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: 14px;
   padding: 24px 18px;
-  border-left: 1px solid var(--border);
-  background: #f8fbfb;
+  border-left: 1px solid #bae6fd;
+  background: linear-gradient(180deg, #f0f9ff 0%, #fdf2f8 100%);
 }
 
 .notification-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--primary-dark);
+  color: #0f766e;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #ccfbf1;
 }
 
 .notification-form {
@@ -409,9 +428,10 @@ textarea:focus {
 
 .notification-marquee {
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid #bae6fd;
   border-radius: 8px;
-  background: var(--panel);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  box-shadow: 0 14px 30px rgba(14, 165, 233, 0.1);
 }
 
 .notification-track {
@@ -437,9 +457,10 @@ textarea:focus {
   border: 1px solid #99f6e4;
   border-radius: 8px;
   padding: 10px;
-  background: #ecfeff;
+  background: linear-gradient(135deg, #ecfeff 0%, #fef3c7 100%);
   color: #115e59;
   text-align: left;
+  box-shadow: 0 10px 22px rgba(20, 184, 166, 0.12);
 }
 
 .notification-item.read {
@@ -717,10 +738,10 @@ textarea:focus {
   gap: 18px;
   justify-items: center;
   padding: 22px;
-  border: 1px solid var(--border);
+  border: 1px solid #99f6e4;
   border-radius: 8px;
-  background: var(--panel);
-  box-shadow: 0 10px 30px rgba(18, 38, 43, 0.04);
+  background: linear-gradient(135deg, #ffffff 0%, #ecfeff 100%);
+  box-shadow: 0 18px 42px rgba(14, 165, 233, 0.12);
   text-align: center;
 }
 
@@ -764,9 +785,20 @@ textarea:focus {
   display: grid;
   gap: 6px;
   padding: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid #bae6fd;
   border-radius: 8px;
-  background: var(--panel-soft);
+  background: linear-gradient(135deg, #eff6ff 0%, #ecfeff 100%);
+}
+
+.profile-stat-grid div:nth-child(2),
+.profile-readonly-grid div:nth-child(2) {
+  border-color: #bbf7d0;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.profile-readonly-grid div:nth-child(3) {
+  border-color: #fde68a;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
 }
 
 .profile-stat-grid svg,
