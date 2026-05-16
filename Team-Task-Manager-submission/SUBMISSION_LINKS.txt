@@ -1,0 +1,26 @@
+Team Task Manager Submission
+
+GitHub repository link:
+PASTE_GITHUB_REPOSITORY_URL_HERE
+
+Live application URL:
+PASTE_DEPLOYED_APPLICATION_URL_HERE
+
+README file:
+README.md is included in the repository.
+README.txt is also included for plain-text submission.
+
+Demo video:
+Record a 3-5 minute screen recording using the script in DEMO_VIDEO_SCRIPT.txt.
+
+Local app for demo before deployment:
+http://localhost:5000
+
+Demo admin login:
+Email: admin@teamtask.local
+Password: Admin12345!
+
+Important before final public submission:
+1. Rotate the MongoDB password shared during development.
+2. Use Railway environment variables instead of committing real secrets.
+3. Do not upload backend/.env or frontend/.env.
