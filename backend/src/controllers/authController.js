@@ -10,8 +10,14 @@ const authResponse = (user, statusCode, res) => {
 
 export const signup = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
-    const user = await User.create({ name, email, password, role });
+    const { name, email, password, role, employeeId } = req.body;
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      employeeId: role === 'Employee' ? employeeId : undefined
+    });
     authResponse(user, 201, res);
   } catch (error) {
     next(error);
@@ -21,12 +27,35 @@ export const signup = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
+    const loginValue = String(email).trim();
+    const filter = /^\d+$/.test(loginValue)
+      ? { employeeId: Number(loginValue), role: 'Employee' }
+      : { email: loginValue.toLowerCase() };
+    const user = await User.findOne(filter).select('+password +failedLoginAttempts');
 
-    if (!user || !(await user.matchPassword(password))) {
+    if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (user.failedLoginAttempts >= 5) {
+      return res.status(423).json({
+        message: 'Too many wrong password attempts. Reset your password before logging in again',
+        attemptsLeft: 0
+      });
+    }
+
+    if (!(await user.matchPassword(password))) {
+      user.failedLoginAttempts += 1;
+      await user.save({ validateBeforeSave: false });
+      const attemptsLeft = Math.max(0, 5 - user.failedLoginAttempts);
+      return res.status(401).json({
+        message: `Wrong password. ${attemptsLeft} ${attemptsLeft === 1 ? 'try' : 'tries'} left out of 5`,
+        attemptsLeft
+      });
+    }
+
+    user.failedLoginAttempts = 0;
+    await user.save({ validateBeforeSave: false });
     authResponse(user, 200, res);
   } catch (error) {
     next(error);
@@ -40,7 +69,7 @@ const createOtp = () => String(crypto.randomInt(100000, 1000000));
 export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email }).select('+passwordResetOtpHash +passwordResetExpires +passwordResetAttempts');
+    const user = await User.findOne({ email }).select('+password +passwordResetOtpHash +passwordResetExpires +passwordResetAttempts +failedLoginAttempts');
 
     if (!user) {
       return res.status(404).json({ message: 'No account was found with this email address' });
@@ -120,10 +149,15 @@ export const resetPassword = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid OTP' });
     }
 
+    if (await user.isSamePassword(password)) {
+      return res.status(400).json({ message: 'New password cannot be the same as your old password' });
+    }
+
     user.password = password;
     user.passwordResetOtpHash = undefined;
     user.passwordResetExpires = undefined;
     user.passwordResetAttempts = 0;
+    user.failedLoginAttempts = 0;
     await user.save();
 
     return res.json({ message: 'Password updated successfully. You can now log in with the new password' });

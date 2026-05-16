@@ -5,6 +5,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import attendanceRoutes from './routes/attendanceRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
@@ -69,6 +70,7 @@ app.use('/api/auth', requireDatabase, authRoutes);
 app.use('/api/users', requireDatabase, userRoutes);
 app.use('/api/projects', requireDatabase, projectRoutes);
 app.use('/api/tasks', requireDatabase, taskRoutes);
+app.use('/api/attendance', requireDatabase, attendanceRoutes);
 
 if (shouldServeClient && fs.existsSync(clientIndex)) {
   const assetsDir = path.join(clientDist, 'assets');

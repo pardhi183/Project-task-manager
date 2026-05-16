@@ -36,7 +36,7 @@ const ProjectPage = () => {
   const loadProject = async () => {
     const [projectData, userData] = await Promise.all([
       apiRequest(`/projects/${projectId}`),
-      apiRequest('/users')
+      isAdmin ? apiRequest('/users') : Promise.resolve({ users: [] })
     ]);
     setProject(projectData.project);
     setProjectForm({
@@ -44,7 +44,7 @@ const ProjectPage = () => {
       description: projectData.project.description,
       teamMembers: projectData.project.teamMembers.map((member) => member._id)
     });
-    setUsers(userData.users);
+    setUsers(isAdmin ? userData.users : projectData.project.teamMembers);
   };
 
   const loadTasks = async () => {

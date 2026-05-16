@@ -23,10 +23,22 @@ const userSchema = new mongoose.Schema(
       minlength: 8,
       select: false
     },
+    employeeId: {
+      type: Number,
+      min: 5000,
+      max: 10000,
+      unique: true,
+      sparse: true
+    },
     role: {
       type: String,
-      enum: ['Admin', 'Member'],
-      default: 'Member'
+      enum: ['Admin', 'User', 'Employee', 'Member'],
+      default: 'User'
+    },
+    failedLoginAttempts: {
+      type: Number,
+      default: 0,
+      select: false
     },
     passwordResetOtpHash: {
       type: String,
@@ -56,9 +68,18 @@ userSchema.methods.matchPassword = function matchPassword(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
+userSchema.methods.isSamePassword = function isSamePassword(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
 userSchema.methods.toJSON = function toJSON() {
   const user = this.toObject();
   delete user.password;
+  delete user.passwordResetOtpHash;
+  delete user.passwordResetExpires;
+  delete user.passwordResetAttempts;
+  delete user.failedLoginAttempts;
+  if (user.role === 'Member') user.role = 'User';
   return user;
 };
 

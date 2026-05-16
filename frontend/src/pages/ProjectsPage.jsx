@@ -16,7 +16,7 @@ const ProjectsPage = () => {
   const loadData = async () => {
     const [projectData, userData] = await Promise.all([
       apiRequest('/projects'),
-      apiRequest('/users')
+      isAdmin ? apiRequest('/users') : Promise.resolve({ users: [] })
     ]);
     setProjects(projectData.projects);
     setUsers(userData.users);

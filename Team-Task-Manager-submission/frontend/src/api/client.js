@@ -1,10 +1,11 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export class ApiError extends Error {
-  constructor(message, status, errors) {
+  constructor(message, status, errors, details = {}) {
     super(message);
     this.status = status;
     this.errors = errors;
+    Object.assign(this, details);
   }
 }
 
@@ -30,7 +31,7 @@ export const apiRequest = async (path, options = {}) => {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new ApiError(data.message || 'Request failed', response.status, data.errors);
+    throw new ApiError(data.message || 'Request failed', response.status, data.errors, data);
   }
 
   return data;

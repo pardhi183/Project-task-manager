@@ -8,13 +8,13 @@ const router = express.Router();
 
 router.use(protect);
 
-router.get('/', getUsers);
+router.get('/', authorize('Admin'), getUsers);
 router.patch(
   '/:userId/role',
   authorize('Admin'),
   [
     param('userId').isMongoId().withMessage('Valid user id is required'),
-    body('role').isIn(['Admin', 'Member']).withMessage('Role must be Admin or Member')
+    body('role').isIn(['Admin', 'User', 'Employee']).withMessage('Role must be Admin, User, or Employee')
   ],
   validate,
   updateUserRole

@@ -455,6 +455,70 @@ textarea:focus {
   border-color: #fecaca;
 }
 
+.punch-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.punch-button {
+  min-height: 88px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: var(--shadow);
+}
+
+.punch-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.punch-in {
+  background: #15803d;
+}
+
+.punch-out {
+  background: #b91c1c;
+}
+
+.attendance-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.attendance-table {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 10px 30px rgba(18, 38, 43, 0.04);
+}
+
+.attendance-row {
+  display: grid;
+  grid-template-columns: 1.3fr 0.8fr 0.8fr 1fr;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.attendance-row:first-child {
+  border-top: 0;
+}
+
+.attendance-head {
+  background: var(--panel-soft);
+  color: var(--primary-dark);
+  font-weight: 900;
+}
+
 .maintenance-banner {
   display: grid;
   gap: 4px;
@@ -664,7 +728,9 @@ textarea:focus {
 
   .metric-grid,
   .form-grid,
-  .task-form-grid {
+  .task-form-grid,
+  .punch-panel,
+  .attendance-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -683,7 +749,10 @@ textarea:focus {
   .metric-grid,
   .form-grid,
   .task-form-grid,
-  .task-grid {
+  .task-grid,
+  .punch-panel,
+  .attendance-summary-grid,
+  .attendance-row {
     grid-template-columns: 1fr;
   }
 

@@ -11,8 +11,9 @@ const AuthPage = ({ mode }) => {
   const [form, setForm] = useState({
     name: '',
     email: '',
+    employeeId: '',
     password: '',
-    role: 'Member'
+    role: 'User'
   });
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -37,6 +38,9 @@ const AuthPage = ({ mode }) => {
       navigate('/');
     } catch (apiError) {
       setError(apiError);
+      if (!isSignup && Number.isInteger(apiError.attemptsLeft)) {
+        window.alert(`${apiError.message}`);
+      }
     } finally {
       setSaving(false);
     }
@@ -76,15 +80,26 @@ const AuthPage = ({ mode }) => {
               />
             </label>
           )}
-          <label>
-            Email
-            <input
-              type="email"
-              value={form.email}
-              onChange={(event) => updateField('email', event.target.value)}
-              required
-            />
-          </label>
+          {isSignup ? (
+            <label>
+              Email
+              <input
+                type="email"
+                value={form.email}
+                onChange={(event) => updateField('email', event.target.value)}
+                required
+              />
+            </label>
+          ) : (
+            <label>
+              Email or Employee ID
+              <input
+                value={form.email}
+                onChange={(event) => updateField('email', event.target.value)}
+                required
+              />
+            </label>
+          )}
           <label>
             Password
             <input
@@ -102,9 +117,23 @@ const AuthPage = ({ mode }) => {
             <label>
               Role
               <select value={form.role} onChange={(event) => updateField('role', event.target.value)}>
-                <option>Member</option>
                 <option>Admin</option>
+                <option>User</option>
+                <option>Employee</option>
               </select>
+            </label>
+          )}
+          {isSignup && form.role === 'Employee' && (
+            <label>
+              Employee ID
+              <input
+                type="number"
+                min="5000"
+                max="10000"
+                value={form.employeeId}
+                onChange={(event) => updateField('employeeId', event.target.value)}
+                required
+              />
             </label>
           )}
           <button className="primary-button" disabled={saving}>
