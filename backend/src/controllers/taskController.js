@@ -6,6 +6,7 @@ const populateTask = (query) =>
   query
     .populate('project', 'name description')
     .populate('assignedUser', 'name email role')
+    .populate('assignedUsers', 'name email role')
     .populate('createdBy', 'name email role');
 
 const ensureProjectAccess = async (projectId, user) => {
@@ -20,12 +21,17 @@ const ensureProjectAccess = async (projectId, user) => {
   return { project };
 };
 
-const ensureAssignableMember = async (project, assignedUserId) => {
-  const user = await User.findById(assignedUserId);
-  if (!user) return 'Assigned user does not exist';
+const ensureAssignableMembers = async (project, assignedUserIds = []) => {
+  if (!assignedUserIds.length) return 'Select at least one assignee';
 
-  const isMember = project.teamMembers.some((memberId) => memberId.equals(user._id));
-  if (!isMember) return 'Assigned user must be a member of the project';
+  const users = await User.find({ _id: { $in: assignedUserIds } });
+  if (users.length !== assignedUserIds.length) return 'One or more assigned users do not exist';
+
+  const invalidMember = users.some((user) => !project.teamMembers.some((memberId) => memberId.equals(user._id)));
+  if (invalidMember) return 'Assigned users must be members of the project';
+
+  const invalidRole = users.some((user) => user.role !== project.targetRole);
+  if (invalidRole) return `Assigned users must be ${project.targetRole}s`;
 
   return null;
 };
@@ -34,7 +40,12 @@ export const getMyTasks = async (req, res, next) => {
   try {
     const now = new Date();
     const tasks = await populateTask(
-      Task.find({ assignedUser: req.user._id }).sort({ dueDate: 1, updatedAt: -1 })
+      Task.find({
+        $or: [
+          { assignedUser: req.user._id },
+          { assignedUsers: req.user._id }
+        ]
+      }).sort({ dueDate: 1, updatedAt: -1 })
     );
 
     const counts = tasks.reduce(
@@ -61,10 +72,16 @@ export const getProjectTasks = async (req, res, next) => {
     const filter = { project: req.params.projectId };
     if (req.query.status) filter.status = req.query.status;
     if (req.user.role === 'Admin' && req.query.assignedUser) {
-      filter.assignedUser = req.query.assignedUser;
+      filter.$or = [
+        { assignedUser: req.query.assignedUser },
+        { assignedUsers: req.query.assignedUser }
+      ];
     }
     if (req.user.role !== 'Admin') {
-      filter.assignedUser = req.user._id;
+      filter.$or = [
+        { assignedUser: req.user._id },
+        { assignedUsers: req.user._id }
+      ];
     }
 
     const tasks = await populateTask(Task.find(filter).sort({ dueDate: 1, updatedAt: -1 }));
@@ -83,14 +100,16 @@ export const createTask = async (req, res, next) => {
       return res.status(403).json({ message: 'Only admins can create tasks' });
     }
 
-    const assignmentError = await ensureAssignableMember(access.project, req.body.assignedUser);
+    const assignedUsers = [...new Set(req.body.assignedUsers.map((id) => id.toString()))];
+    const assignmentError = await ensureAssignableMembers(access.project, assignedUsers);
     if (assignmentError) return res.status(400).json({ message: assignmentError });
 
     const task = await Task.create({
       title: req.body.title,
       description: req.body.description,
       project: access.project._id,
-      assignedUser: req.body.assignedUser,
+      assignedUser: assignedUsers[0],
+      assignedUsers,
       status: req.body.status,
       dueDate: req.body.dueDate,
       createdBy: req.user._id
@@ -111,7 +130,7 @@ export const updateTask = async (req, res, next) => {
     const access = await ensureProjectAccess(task.project, req.user);
     if (access.status) return res.status(access.status).json({ message: access.message });
 
-    const isAssignee = task.assignedUser.equals(req.user._id);
+    const isAssignee = task.assignedUser.equals(req.user._id) || task.assignedUsers.some((userId) => userId.equals(req.user._id));
     if (req.user.role !== 'Admin' && !isAssignee) {
       return res.status(403).json({ message: 'You can only update your assigned tasks' });
     }
@@ -123,10 +142,12 @@ export const updateTask = async (req, res, next) => {
       }
     }
 
-    if (req.body.assignedUser !== undefined) {
-      const assignmentError = await ensureAssignableMember(access.project, req.body.assignedUser);
+    if (req.body.assignedUsers !== undefined) {
+      const assignedUsers = [...new Set(req.body.assignedUsers.map((id) => id.toString()))];
+      const assignmentError = await ensureAssignableMembers(access.project, assignedUsers);
       if (assignmentError) return res.status(400).json({ message: assignmentError });
-      task.assignedUser = req.body.assignedUser;
+      task.assignedUser = assignedUsers[0];
+      task.assignedUsers = assignedUsers;
     }
 
     ['title', 'description', 'status', 'dueDate'].forEach((field) => {

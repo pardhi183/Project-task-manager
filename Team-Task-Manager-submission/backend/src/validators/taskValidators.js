@@ -14,7 +14,8 @@ export const createTaskValidator = [
   param('projectId').isMongoId().withMessage('Valid project id is required'),
   body('title').trim().isLength({ min: 2, max: 160 }).withMessage('Title must be 2-160 characters'),
   body('description').optional().trim().isLength({ max: 3000 }).withMessage('Description is too long'),
-  body('assignedUser').isMongoId().withMessage('Assigned user must be a valid id'),
+  body('assignedUsers').isArray({ min: 1 }).withMessage('Select at least one assignee'),
+  body('assignedUsers.*').isMongoId().withMessage('Every assignee must be a valid user id'),
   body('status').optional().isIn(['Todo', 'In Progress', 'Done']).withMessage('Invalid task status'),
   body('dueDate').isISO8601().withMessage('Due date must be a valid date')
 ];
@@ -23,7 +24,8 @@ export const updateTaskValidator = [
   ...taskIdValidator,
   body('title').optional().trim().isLength({ min: 2, max: 160 }).withMessage('Title must be 2-160 characters'),
   body('description').optional().trim().isLength({ max: 3000 }).withMessage('Description is too long'),
-  body('assignedUser').optional().isMongoId().withMessage('Assigned user must be a valid id'),
+  body('assignedUsers').optional().isArray({ min: 1 }).withMessage('Select at least one assignee'),
+  body('assignedUsers.*').optional().isMongoId().withMessage('Every assignee must be a valid user id'),
   body('status').optional().isIn(['Todo', 'In Progress', 'Done']).withMessage('Invalid task status'),
   body('dueDate').optional().isISO8601().withMessage('Due date must be a valid date')
 ];

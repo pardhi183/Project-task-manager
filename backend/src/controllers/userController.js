@@ -4,7 +4,7 @@ import User from '../models/User.js';
 
 export const getUsers = async (_req, res, next) => {
   try {
-    const users = await User.find({ role: { $in: ['User', 'Employee', 'Member'] } }).sort({ name: 1 });
+    const users = await User.find({ role: { $in: ['Admin', 'User', 'Employee', 'Member'] } }).sort({ name: 1 });
     res.json({ users });
   } catch (error) {
     next(error);
@@ -75,6 +75,10 @@ export const deleteUser = async (req, res, next) => {
     await Task.updateMany(
       { assignedUser: user._id },
       { $unset: { assignedUser: '' }, status: 'Todo' }
+    );
+    await Task.updateMany(
+      { assignedUsers: user._id },
+      { $pull: { assignedUsers: user._id } }
     );
     await user.deleteOne();
 

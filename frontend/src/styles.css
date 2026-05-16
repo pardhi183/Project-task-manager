@@ -260,7 +260,7 @@ textarea:focus {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
 }
 
 .sidebar {
@@ -308,7 +308,29 @@ textarea:focus {
 .nav-list a.active,
 .nav-list a:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.11);
+  background: linear-gradient(135deg, #0f766e 0%, #15803d 100%);
+  box-shadow: inset 4px 0 0 #facc15;
+}
+
+.weather-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.2), rgba(14, 116, 144, 0.28));
+  color: #fff;
+}
+
+.weather-card strong,
+.weather-card span {
+  display: block;
+}
+
+.weather-card span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.85rem;
 }
 
 .user-card {
@@ -355,6 +377,81 @@ textarea:focus {
 
 .main-content {
   padding: 32px;
+}
+
+.notification-rail {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 24px 18px;
+  border-left: 1px solid var(--border);
+  background: #f8fbfb;
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-dark);
+}
+
+.notification-form {
+  display: grid;
+  gap: 8px;
+}
+
+.notification-form textarea {
+  min-height: 72px;
+}
+
+.notification-marquee {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.notification-track {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  animation: notificationScroll 18s linear infinite;
+}
+
+.notification-marquee:hover .notification-track {
+  animation-play-state: paused;
+}
+
+@keyframes notificationScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-45%); }
+}
+
+.notification-item {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  padding: 10px;
+  background: #ecfeff;
+  color: #115e59;
+  text-align: left;
+}
+
+.notification-item.read {
+  opacity: 0.72;
+  background: #fff;
+  border-color: var(--border);
+}
+
+.notification-item span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
 }
 
 .page-stack {
@@ -795,6 +892,29 @@ textarea:focus {
   cursor: wait;
 }
 
+.login-flow-line {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ccfbf1;
+}
+
+.login-flow-line::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 35%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0f766e, #22c55e);
+  animation: loginFlow 0.9s ease-in-out infinite;
+}
+
+@keyframes loginFlow {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(300%); }
+}
+
 .project-grid {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
@@ -851,6 +971,24 @@ textarea:focus {
 
 .checkbox-row small {
   color: var(--muted);
+}
+
+.field-heading {
+  margin: 0 0 10px;
+  color: #2d3c42;
+  font-weight: 900;
+}
+
+.audience-pill {
+  width: fit-content;
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #115e59;
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .filters {
@@ -963,6 +1101,13 @@ textarea:focus {
   .sidebar {
     position: static;
     height: auto;
+  }
+
+  .notification-rail {
+    position: static;
+    height: auto;
+    border-left: 0;
+    border-top: 1px solid var(--border);
   }
 
   .metric-grid,

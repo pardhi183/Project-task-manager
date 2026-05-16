@@ -7,9 +7,14 @@ const populateProject = (query) =>
     .populate('createdBy', 'name email role')
     .populate('teamMembers', 'name email role');
 
-const normalizeTeamMembers = (members = [], creatorId) => {
-  const ids = new Set([creatorId.toString(), ...members.map((id) => id.toString())]);
+const normalizeTeamMembers = (members = []) => {
+  const ids = new Set(members.map((id) => id.toString()));
   return [...ids];
+};
+
+const validateTeamMembersForRole = async (teamMembers, targetRole) => {
+  const count = await User.countDocuments({ _id: { $in: teamMembers }, role: targetRole });
+  return count === teamMembers.length;
 };
 
 export const getProjects = async (req, res, next) => {
@@ -43,17 +48,23 @@ export const getProject = async (req, res, next) => {
 
 export const createProject = async (req, res, next) => {
   try {
-    const teamMembers = normalizeTeamMembers(req.body.teamMembers, req.user._id);
+    const targetRole = req.body.targetRole || 'User';
+    const teamMembers = normalizeTeamMembers(req.body.teamMembers);
     const count = await User.countDocuments({ _id: { $in: teamMembers } });
 
     if (count !== teamMembers.length) {
       return res.status(400).json({ message: 'One or more team members do not exist' });
     }
 
+    if (!(await validateTeamMembersForRole(teamMembers, targetRole))) {
+      return res.status(400).json({ message: `All selected members must be ${targetRole}s` });
+    }
+
     const project = await Project.create({
       name: req.body.name,
       description: req.body.description,
       teamMembers,
+      targetRole,
       createdBy: req.user._id
     });
 
@@ -71,12 +82,17 @@ export const updateProject = async (req, res, next) => {
 
     if (req.body.name !== undefined) project.name = req.body.name;
     if (req.body.description !== undefined) project.description = req.body.description;
+    if (req.body.targetRole !== undefined) project.targetRole = req.body.targetRole;
     if (req.body.teamMembers !== undefined) {
-      const teamMembers = normalizeTeamMembers(req.body.teamMembers, project.createdBy);
+      const teamMembers = normalizeTeamMembers(req.body.teamMembers);
       const count = await User.countDocuments({ _id: { $in: teamMembers } });
 
       if (count !== teamMembers.length) {
         return res.status(400).json({ message: 'One or more team members do not exist' });
+      }
+
+      if (!(await validateTeamMembersForRole(teamMembers, project.targetRole))) {
+        return res.status(400).json({ message: `All selected members must be ${project.targetRole}s` });
       }
 
       project.teamMembers = teamMembers;

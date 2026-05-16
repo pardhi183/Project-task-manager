@@ -20,6 +20,11 @@ const projectSchema = new mongoose.Schema(
         ref: 'User'
       }
     ],
+    targetRole: {
+      type: String,
+      enum: ['Admin', 'User', 'Employee'],
+      default: 'User'
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

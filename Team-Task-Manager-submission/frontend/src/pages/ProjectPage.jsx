@@ -9,7 +9,7 @@ import { useAuth } from '../state/AuthContext.jsx';
 const emptyTask = {
   title: '',
   description: '',
-  assignedUser: '',
+  assignedUsers: [],
   status: 'Todo',
   dueDate: ''
 };
@@ -22,7 +22,7 @@ const ProjectPage = () => {
   const [users, setUsers] = useState([]);
   const [filters, setFilters] = useState({ status: '', assignedUser: '' });
   const [taskForm, setTaskForm] = useState(emptyTask);
-  const [projectForm, setProjectForm] = useState({ name: '', description: '', teamMembers: [] });
+  const [projectForm, setProjectForm] = useState({ name: '', description: '', targetRole: 'User', teamMembers: [] });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +42,7 @@ const ProjectPage = () => {
     setProjectForm({
       name: projectData.project.name,
       description: projectData.project.description,
+      targetRole: projectData.project.targetRole || 'User',
       teamMembers: projectData.project.teamMembers.map((member) => member._id)
     });
     setUsers(isAdmin ? userData.users : projectData.project.teamMembers);
@@ -62,7 +63,8 @@ const ProjectPage = () => {
     loadTasks().catch(setError);
   }, [query]);
 
-  const projectMembers = users.filter((user) => projectForm.teamMembers.includes(user._id));
+  const eligibleUsers = users.filter((user) => user.role === projectForm.targetRole);
+  const projectMembers = eligibleUsers.filter((user) => projectForm.teamMembers.includes(user._id));
 
   const saveProject = async (event) => {
     event.preventDefault();
@@ -127,6 +129,15 @@ const ProjectPage = () => {
     }));
   };
 
+  const toggleTaskAssignee = (userId) => {
+    setTaskForm((current) => ({
+      ...current,
+      assignedUsers: current.assignedUsers.includes(userId)
+        ? current.assignedUsers.filter((id) => id !== userId)
+        : [...current.assignedUsers, userId]
+    }));
+  };
+
   if (loading) return <p className="muted">Loading project...</p>;
   if (!project) return <div className="empty-state">Project not found.</div>;
 
@@ -157,9 +168,20 @@ const ProjectPage = () => {
                 onChange={(event) => setProjectForm((current) => ({ ...current, description: event.target.value }))}
               />
             </label>
+            <label>
+              Creating for
+              <select
+                value={projectForm.targetRole}
+                onChange={(event) => setProjectForm((current) => ({ ...current, targetRole: event.target.value, teamMembers: [] }))}
+              >
+                <option>User</option>
+                <option>Employee</option>
+                <option>Admin</option>
+              </select>
+            </label>
           </div>
           <div className="member-picker">
-            {users.map((member) => (
+            {eligibleUsers.map((member) => (
               <label key={member._id} className="checkbox-row">
                 <input
                   type="checkbox"
@@ -192,19 +214,6 @@ const ProjectPage = () => {
               />
             </label>
             <label>
-              Assigned user
-              <select
-                value={taskForm.assignedUser}
-                onChange={(event) => setTaskForm((current) => ({ ...current, assignedUser: event.target.value }))}
-                required
-              >
-                <option value="">Select member</option>
-                {projectMembers.map((member) => (
-                  <option value={member._id} key={member._id}>{member.name}</option>
-                ))}
-              </select>
-            </label>
-            <label>
               Due date
               <input
                 type="date"
@@ -224,6 +233,22 @@ const ProjectPage = () => {
                 <option>Done</option>
               </select>
             </label>
+          </div>
+          <div>
+            <p className="field-heading">Assign to {projectForm.targetRole}s</p>
+            <div className="member-picker">
+              {projectMembers.map((member) => (
+                <label key={member._id} className="checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={taskForm.assignedUsers.includes(member._id)}
+                    onChange={() => toggleTaskAssignee(member._id)}
+                  />
+                  <span>{member.name}</span>
+                  <small>{member.role}</small>
+                </label>
+              ))}
+            </div>
           </div>
           <label>
             Description

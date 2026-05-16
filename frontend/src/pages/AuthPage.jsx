@@ -157,6 +157,7 @@ const AuthPage = ({ mode }) => {
           <button className="primary-button" disabled={saving}>
             {saving ? 'Please wait...' : isSignup ? 'Create account' : 'Log in'}
           </button>
+          {saving && <div className="login-flow-line" aria-hidden="true" />}
           <p className="form-switch">
             {isSignup ? 'Already have an account?' : 'Need an account?'}{' '}
             <Link to={isSignup ? '/login' : '/signup'}>{isSignup ? 'Log in' : 'Sign up'}</Link>

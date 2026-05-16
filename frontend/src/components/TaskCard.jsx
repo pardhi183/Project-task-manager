@@ -9,6 +9,9 @@ const formatDate = (date) => new Intl.DateTimeFormat(undefined, {
 
 const TaskCard = ({ task, onStatusChange, canEditStatus = true }) => {
   const overdue = task.status !== 'Done' && new Date(task.dueDate) < new Date();
+  const assignees = task.assignedUsers?.length
+    ? task.assignedUsers.map((user) => user.name).join(', ')
+    : task.assignedUser?.name;
 
   return (
     <article className={`task-card ${overdue ? 'overdue' : ''}`}>
@@ -22,7 +25,7 @@ const TaskCard = ({ task, onStatusChange, canEditStatus = true }) => {
       {task.description && <p className="task-description">{task.description}</p>}
       <div className="task-meta-row">
         <span><CalendarClock size={16} /> {formatDate(task.dueDate)}</span>
-        <span>{task.assignedUser?.name}</span>
+        <span>{assignees}</span>
       </div>
       {canEditStatus && (
         <select

@@ -9,7 +9,7 @@ const ProjectsPage = () => {
   const { isAdmin } = useAuth();
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
-  const [form, setForm] = useState({ name: '', description: '', teamMembers: [] });
+  const [form, setForm] = useState({ name: '', description: '', targetRole: 'User', teamMembers: [] });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +46,7 @@ const ProjectsPage = () => {
         method: 'POST',
         body: form
       });
-      setForm({ name: '', description: '', teamMembers: [] });
+      setForm({ name: '', description: '', targetRole: 'User', teamMembers: [] });
       await loadData();
     } catch (apiError) {
       setError(apiError);
@@ -91,9 +91,20 @@ const ProjectsPage = () => {
                 onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
               />
             </label>
+            <label>
+              Creating for
+              <select
+                value={form.targetRole}
+                onChange={(event) => setForm((current) => ({ ...current, targetRole: event.target.value, teamMembers: [] }))}
+              >
+                <option>User</option>
+                <option>Employee</option>
+                <option>Admin</option>
+              </select>
+            </label>
           </div>
           <div className="member-picker">
-            {users.map((member) => (
+            {users.filter((member) => member.role === form.targetRole).map((member) => (
               <label key={member._id} className="checkbox-row">
                 <input
                   type="checkbox"
@@ -122,6 +133,7 @@ const ProjectsPage = () => {
               <div>
                 <h3>{project.name}</h3>
                 <p>{project.description || 'No description provided.'}</p>
+                <span className="audience-pill">{project.targetRole || 'User'} project</span>
               </div>
               <div className="project-card-footer">
                 <span>{project.teamMembers.length} members</span>
