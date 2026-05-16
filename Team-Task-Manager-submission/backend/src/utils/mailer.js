@@ -1,4 +1,9 @@
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+
+const lookupIPv4 = (hostname, options, callback) => {
+  dns.lookup(hostname, { ...options, family: 4 }, callback);
+};
 
 const getTransport = () => {
   const host = process.env.SMTP_HOST;
@@ -16,6 +21,7 @@ const getTransport = () => {
     secure: port === 465,
     auth: { user, pass },
     family: 4,
+    lookup: lookupIPv4,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
