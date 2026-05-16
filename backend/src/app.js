@@ -24,6 +24,8 @@ const allowedOrigins = [
   'http://127.0.0.1:5000'
 ].filter(Boolean);
 
+const allowAllCorsOrigins = process.env.CLIENT_URL === '*';
+
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
   contentSecurityPolicy: process.env.NODE_ENV === 'production'
@@ -38,6 +40,7 @@ app.use(helmet({
 }));
 app.use(cors({
   origin(origin, callback) {
+    if (allowAllCorsOrigins) return callback(null, true);
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
@@ -48,7 +51,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'team-task-manager' });
+  res.json({
+    status: 'ok',
+    service: 'team-task-manager',
+    database: globalThis.__TEAM_TASK_MANAGER_DB_STATUS__ || 'unknown'
+  });
 });
 
 app.use('/api/auth', authRoutes);
