@@ -460,10 +460,10 @@ textarea:focus {
   gap: 4px;
   padding: 14px 16px;
   border-radius: 8px;
-  border: 1px solid #fed7aa;
-  background: linear-gradient(135deg, #ffedd5 0%, #fb7185 100%);
-  color: #7f1d1d;
-  box-shadow: 0 14px 28px rgba(251, 113, 133, 0.18);
+  border: 1px solid #99f6e4;
+  background: linear-gradient(135deg, #ecfeff 0%, #ccfbf1 100%);
+  color: #115e59;
+  box-shadow: 0 14px 28px rgba(20, 184, 166, 0.14);
 }
 
 .maintenance-banner strong {
@@ -472,9 +472,24 @@ textarea:focus {
 }
 
 .maintenance-banner span {
-  color: #7f1d1d;
+  color: #115e59;
   font-weight: 700;
   line-height: 1.35;
+}
+
+.resend-otp-link {
+  justify-self: end;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--primary-dark);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.resend-otp-link:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .project-grid {

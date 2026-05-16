@@ -10,6 +10,7 @@ const ForgotPasswordPage = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [otpRequested, setOtpRequested] = useState(false);
 
   const updateField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -27,6 +28,7 @@ const ForgotPasswordPage = () => {
         body: { email: form.email }
       });
       setMessage(data.message);
+      setOtpRequested(true);
       setStep('otp');
     } catch (apiError) {
       setError(apiError);
@@ -108,6 +110,11 @@ const ForgotPasswordPage = () => {
             <button className="primary-button" disabled={saving}>
               {saving ? 'Sending OTP...' : 'Send OTP'}
             </button>
+            {otpRequested && (
+              <button type="submit" className="resend-otp-link" disabled={saving}>
+                Resend OTP
+              </button>
+            )}
             <p className="form-switch"><Link to="/login">Back to login</Link></p>
           </form>
         )}
