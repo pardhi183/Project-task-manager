@@ -5,8 +5,8 @@ import { apiRequest } from '../api/client.js';
 import ErrorNotice from '../components/ErrorNotice.jsx';
 
 const ForgotPasswordPage = () => {
-  const [step, setStep] = useState('email');
-  const [form, setForm] = useState({ email: '', otp: '', password: '' });
+  const [step, setStep] = useState('mobile');
+  const [form, setForm] = useState({ mobileNumber: '', otp: '', password: '' });
   const [message, setMessage] = useState('');
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -16,7 +16,7 @@ const ForgotPasswordPage = () => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const submitEmail = async (event) => {
+  const submitMobile = async (event) => {
     event.preventDefault();
     setSaving(true);
     setError(null);
@@ -25,7 +25,7 @@ const ForgotPasswordPage = () => {
     try {
       const data = await apiRequest('/auth/forgot-password', {
         method: 'POST',
-        body: { email: form.email }
+        body: { mobileNumber: form.mobileNumber }
       });
       setMessage(data.message);
       setOtpRequested(true);
@@ -46,7 +46,7 @@ const ForgotPasswordPage = () => {
     try {
       const data = await apiRequest('/auth/verify-password-otp', {
         method: 'POST',
-        body: { email: form.email, otp: form.otp }
+        body: { mobileNumber: form.mobileNumber, otp: form.otp }
       });
       setMessage(data.message);
       setStep('password');
@@ -83,27 +83,28 @@ const ForgotPasswordPage = () => {
         <div className="auth-copy">
           <div className="brand-mark large">TT</div>
           <h1>Reset Password</h1>
-          <p>Use your registered email, verify the OTP, then create a new password.</p>
+          <p>Use your registered mobile number, verify the OTP, then create a new password.</p>
           <div className="auth-proof">
-            <span><CheckCircle2 size={18} /> Registered email OTP</span>
+            <span><CheckCircle2 size={18} /> Registered mobile OTP</span>
             <span><CheckCircle2 size={18} /> 10 minute expiry</span>
             <span><CheckCircle2 size={18} /> Secure password update</span>
           </div>
         </div>
 
-        {step === 'email' && (
-          <form className="auth-form" onSubmit={submitEmail}>
+        {step === 'mobile' && (
+          <form className="auth-form" onSubmit={submitMobile}>
             <div>
               <h2>Forgot password</h2>
-              <p>Enter your registered email address. We will send a 6 digit OTP.</p>
+              <p>Enter your registered mobile number. We will send a 6 digit OTP.</p>
             </div>
             <ErrorNotice error={error} />
             <label>
-              Email
+              Mobile number
               <input
-                type="email"
-                value={form.email}
-                onChange={(event) => updateField('email', event.target.value)}
+                inputMode="numeric"
+                maxLength={10}
+                value={form.mobileNumber}
+                onChange={(event) => updateField('mobileNumber', event.target.value.replace(/\D/g, ''))}
                 required
               />
             </label>
@@ -123,7 +124,7 @@ const ForgotPasswordPage = () => {
           <form className="auth-form" onSubmit={submitOtp}>
             <div>
               <h2>Enter OTP</h2>
-              <p>Check your registered email and enter the 6 digit OTP.</p>
+              <p>Check your registered mobile number and enter the 6 digit OTP.</p>
             </div>
             {message && <div className="notice success">{message}</div>}
             <ErrorNotice error={error} />
@@ -140,7 +141,7 @@ const ForgotPasswordPage = () => {
             <button className="primary-button" disabled={saving}>
               {saving ? 'Verifying...' : 'Verify OTP'}
             </button>
-            <button type="button" className="secondary-button" onClick={submitEmail} disabled={saving}>
+            <button type="button" className="secondary-button" onClick={submitMobile} disabled={saving}>
               Resend OTP
             </button>
           </form>

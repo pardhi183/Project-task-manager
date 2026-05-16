@@ -4,7 +4,7 @@ import { apiRequest } from '../api/client.js';
 import ErrorNotice from '../components/ErrorNotice.jsx';
 import { useAuth } from '../state/AuthContext.jsx';
 
-const defaultAvatar = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Team Member')}&background=0f766e&color=fff&bold=true`;
+const defaultAvatar = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><rect width="220" height="220" fill="%23e0f2f1"/><circle cx="110" cy="78" r="40" fill="%230f766e"/><path d="M38 198c10-48 39-74 72-74s62 26 72 74" fill="%230f766e"/></svg>';
 
 const serviceLength = (createdAt) => {
   if (!createdAt) return 'New member';
@@ -68,6 +68,28 @@ const ProfilePage = () => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
+  const uploadProfilePicture = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError({ message: 'Please choose an image file' });
+      return;
+    }
+
+    if (file.size > 900 * 1024) {
+      setError({ message: 'Profile picture must be smaller than 900 KB' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateForm('profilePicture', reader.result);
+      setError(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const saveProfile = async (event) => {
     event.preventDefault();
     if (!isAdmin) return;
@@ -118,7 +140,7 @@ const ProfilePage = () => {
           <article className="profile-preview">
             <img
               className="profile-avatar"
-              src={selectedProfile.profilePicture || defaultAvatar(selectedProfile.name)}
+              src={selectedProfile.profilePicture || defaultAvatar}
               alt={`${selectedProfile.name} profile`}
             />
             <div>
@@ -175,17 +197,28 @@ const ProfilePage = () => {
             </div>
 
             <label>
-              Profile picture URL
-              <div className="input-with-icon">
+              Profile picture
+              <div className="file-upload-row">
                 <Camera size={18} />
                 <input
-                  value={form.profilePicture}
-                  onChange={(event) => updateForm('profilePicture', event.target.value)}
+                  type="file"
+                  accept="image/*"
+                  onChange={uploadProfilePicture}
                   disabled={!canEdit}
-                  placeholder="https://example.com/profile.jpg"
                 />
               </div>
             </label>
+
+            {form.profilePicture && (
+              <div className="profile-upload-preview">
+                <img src={form.profilePicture} alt="Selected profile preview" />
+                {canEdit && (
+                  <button type="button" className="secondary-button" onClick={() => updateForm('profilePicture', '')}>
+                    Remove picture
+                  </button>
+                )}
+              </div>
+            )}
 
             <label>
               Productivity

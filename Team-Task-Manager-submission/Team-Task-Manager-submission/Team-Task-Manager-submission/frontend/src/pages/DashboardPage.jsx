@@ -142,7 +142,7 @@ const DashboardPage = () => {
                 <ShieldCheck size={22} />
                 <div>
                   <strong>{alert.adminName || 'Admin account'}</strong>
-                  <span>{alert.loginIdentifier} • Password: hidden • {alert.loginStatus} • {formatDateTime(alert.attemptedAt)}</span>
+                  <span>{alert.loginIdentifier} - Password: hidden - {alert.loginStatus} - {formatDateTime(alert.attemptedAt)}</span>
                 </div>
                 <button className="secondary-button" type="button" onClick={() => approveAdminLogin(alert._id)}>
                   Approve
@@ -204,6 +204,22 @@ const DashboardPage = () => {
       </section>
       <section>
         <div className="section-heading">
+          <h3>My tasks</h3>
+        </div>
+        {loading ? (
+          <p className="muted">Loading tasks...</p>
+        ) : tasks.length === 0 ? (
+          <div className="empty-state">No assigned tasks yet.</div>
+        ) : (
+          <div className="task-grid">
+            {tasks.map((task) => (
+              <TaskCard key={task._id} task={task} onStatusChange={updateStatus} />
+            ))}
+          </div>
+        )}
+      </section>
+      <section>
+        <div className="section-heading">
           <h3>Attendance</h3>
         </div>
         {isAdmin ? (
@@ -239,22 +255,6 @@ const DashboardPage = () => {
               <span>Today</span>
               <strong>{myAttendance?.isPunchedIn ? 'In' : myAttendance?.today?.punchOutAt ? 'Out' : 'No'}</strong>
             </article>
-          </div>
-        )}
-      </section>
-      <section>
-        <div className="section-heading">
-          <h3>My tasks</h3>
-        </div>
-        {loading ? (
-          <p className="muted">Loading tasks...</p>
-        ) : tasks.length === 0 ? (
-          <div className="empty-state">No assigned tasks yet.</div>
-        ) : (
-          <div className="task-grid">
-            {tasks.map((task) => (
-              <TaskCard key={task._id} task={task} onStatusChange={updateStatus} />
-            ))}
           </div>
         )}
       </section>

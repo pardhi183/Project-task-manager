@@ -15,6 +15,10 @@ const passwordRules = body('password')
 export const signupValidator = [
   body('name').trim().isLength({ min: 2, max: 80 }).withMessage('Name must be 2-80 characters'),
   body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('mobileNumber')
+    .trim()
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Enter a valid 10 digit mobile number'),
   passwordRules,
   body('role').optional().isIn(['Admin', 'User', 'Employee']).withMessage('Role must be Admin, User, or Employee'),
   body('employeeId')
@@ -24,21 +28,31 @@ export const signupValidator = [
 ];
 
 export const loginValidator = [
-  body('email').trim().notEmpty().withMessage('Email or employee ID is required'),
+  body('role').isIn(['Admin', 'User', 'Employee']).withMessage('Choose whether you are signing in as Admin, User, or Employee'),
+  body('email').trim().notEmpty().withMessage('Email, mobile number, or employee ID is required'),
   body('password').notEmpty().withMessage('Password is required')
 ];
 
 export const forgotPasswordValidator = [
-  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail()
+  body('mobileNumber')
+    .trim()
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Enter a valid 10 digit mobile number')
 ];
 
 export const verifyPasswordOtpValidator = [
-  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('mobileNumber')
+    .trim()
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Enter a valid 10 digit mobile number'),
   body('otp').trim().isLength({ min: 6, max: 6 }).isNumeric().withMessage('Enter the 6 digit OTP')
 ];
 
 export const resetPasswordValidator = [
-  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('mobileNumber')
+    .trim()
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Enter a valid 10 digit mobile number'),
   body('otp').trim().isLength({ min: 6, max: 6 }).isNumeric().withMessage('Enter the 6 digit OTP'),
   passwordRules
 ];

@@ -30,6 +30,23 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true
     },
+    profilePicture: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    designation: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: ''
+    },
+    productivity: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 0
+    },
     role: {
       type: String,
       enum: ['Admin', 'User', 'Employee', 'Member'],

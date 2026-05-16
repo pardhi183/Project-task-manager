@@ -695,15 +695,36 @@ textarea:focus {
   background: #f8fafc;
 }
 
-.input-with-icon {
+.input-with-icon,
+.file-upload-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 10px;
 }
 
-.input-with-icon svg {
+.input-with-icon svg,
+.file-upload-row svg {
   color: var(--primary);
+}
+
+.file-upload-row input {
+  padding: 8px;
+}
+
+.profile-upload-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.profile-upload-preview img {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ccfbf1;
 }
 
 .range-value {

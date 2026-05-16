@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import AdminLoginAlert from '../models/AdminLoginAlert.js';
 import User from '../models/User.js';
-import { sendPasswordResetOtp } from '../utils/mailer.js';
+import { sendPasswordResetSmsOtp } from '../utils/sms.js';
 import { signToken } from '../utils/token.js';
 
 const authResponse = (user, statusCode, res) => {
@@ -23,10 +23,11 @@ const createAdminLoginAlert = async (user, loginIdentifier, loginStatus) => {
 
 export const signup = async (req, res, next) => {
   try {
-    const { name, email, password, role, employeeId } = req.body;
+    const { name, email, mobileNumber, password, role, employeeId } = req.body;
     const user = await User.create({
       name,
       email,
+      mobileNumber,
       password,
       role,
       employeeId: role === 'Employee' ? employeeId : undefined
@@ -39,11 +40,18 @@ export const signup = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     const loginValue = String(email).trim();
-    const filter = /^\d+$/.test(loginValue)
-      ? { employeeId: Number(loginValue), role: 'Employee' }
-      : { email: loginValue.toLowerCase() };
+    const filter = { role };
+
+    if (/^\d+$/.test(loginValue) && role === 'Employee' && loginValue.length < 10) {
+      filter.employeeId = Number(loginValue);
+    } else if (/^\d{10}$/.test(loginValue)) {
+      filter.mobileNumber = loginValue;
+    } else {
+      filter.email = loginValue.toLowerCase();
+    }
+
     const user = await User.findOne(filter).select('+password +failedLoginAttempts');
 
     if (!user) {
@@ -84,11 +92,11 @@ const createOtp = () => String(crypto.randomInt(100000, 1000000));
 
 export const forgotPassword = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email }).select('+password +passwordResetOtpHash +passwordResetExpires +passwordResetAttempts +failedLoginAttempts');
+    const { mobileNumber } = req.body;
+    const user = await User.findOne({ mobileNumber }).select('+password +passwordResetOtpHash +passwordResetExpires +passwordResetAttempts +failedLoginAttempts');
 
     if (!user) {
-      return res.status(404).json({ message: 'No account was found with this email address' });
+      return res.status(404).json({ message: 'No account was found with this mobile number' });
     }
 
     const otp = createOtp();
@@ -98,16 +106,20 @@ export const forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     try {
-      await sendPasswordResetOtp({ to: user.email, otp });
-    } catch (mailError) {
+      const smsResult = await sendPasswordResetSmsOtp({ to: user.mobileNumber, otp });
+      return res.json({
+        message: smsResult.delivered
+          ? 'OTP sent to your registered mobile number'
+          : `SMS service is not configured. Test OTP: ${smsResult.otp}`,
+        devOtp: smsResult.delivered ? undefined : smsResult.otp
+      });
+    } catch (smsError) {
       user.passwordResetOtpHash = undefined;
       user.passwordResetExpires = undefined;
       user.passwordResetAttempts = 0;
       await user.save({ validateBeforeSave: false });
-      return res.status(503).json({ message: mailError.message });
+      return res.status(503).json({ message: smsError.message });
     }
-
-    return res.json({ message: 'OTP sent to your registered email address' });
   } catch (error) {
     return next(error);
   }
@@ -115,8 +127,8 @@ export const forgotPassword = async (req, res, next) => {
 
 export const verifyPasswordOtp = async (req, res, next) => {
   try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({ email }).select('+passwordResetOtpHash +passwordResetExpires +passwordResetAttempts');
+    const { mobileNumber, otp } = req.body;
+    const user = await User.findOne({ mobileNumber }).select('+passwordResetOtpHash +passwordResetExpires +passwordResetAttempts');
 
     if (!user || !user.passwordResetOtpHash || !user.passwordResetExpires) {
       return res.status(400).json({ message: 'Request a new OTP before continuing' });
@@ -144,8 +156,8 @@ export const verifyPasswordOtp = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   try {
-    const { email, otp, password } = req.body;
-    const user = await User.findOne({ email }).select('+passwordResetOtpHash +passwordResetExpires +passwordResetAttempts');
+    const { mobileNumber, otp, password } = req.body;
+    const user = await User.findOne({ mobileNumber }).select('+password +passwordResetOtpHash +passwordResetExpires +passwordResetAttempts +failedLoginAttempts');
 
     if (!user || !user.passwordResetOtpHash || !user.passwordResetExpires) {
       return res.status(400).json({ message: 'Request a new OTP before resetting your password' });

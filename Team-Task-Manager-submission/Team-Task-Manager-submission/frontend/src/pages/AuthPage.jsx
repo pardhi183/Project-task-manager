@@ -11,6 +11,7 @@ const AuthPage = ({ mode }) => {
   const [form, setForm] = useState({
     name: '',
     email: '',
+    mobileNumber: '',
     employeeId: '',
     password: '',
     role: 'User'
@@ -33,7 +34,7 @@ const AuthPage = ({ mode }) => {
       if (isSignup) {
         await signup(form);
       } else {
-        await login({ email: form.email, password: form.password });
+        await login({ email: form.email, password: form.password, role: form.role });
       }
       navigate('/');
     } catch (apiError) {
@@ -60,15 +61,20 @@ const AuthPage = ({ mode }) => {
           </div>
         </div>
         <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="maintenance-banner" role="status">
-            <strong>Welcome</strong>
-            <span>Welcome to the Team Task Manager. Enjoy your day!</span>
-          </div>
           <div>
-            <h2>{isSignup ? 'Create account' : 'Welcome back'}</h2>
-            <p>{isSignup ? 'Start with an admin account or join as a member.' : 'Sign in to manage your workspace.'}</p>
+            <h2>{isSignup ? 'Create account' : 'Sign in'}</h2>
           </div>
           <ErrorNotice error={error} />
+          {!isSignup && (
+            <label>
+              Sign in as
+              <select value={form.role} onChange={(event) => updateField('role', event.target.value)}>
+                <option>User</option>
+                <option>Employee</option>
+                <option>Admin</option>
+              </select>
+            </label>
+          )}
           {isSignup && (
             <label>
               Name
@@ -81,18 +87,30 @@ const AuthPage = ({ mode }) => {
             </label>
           )}
           {isSignup ? (
-            <label>
-              Email
-              <input
-                type="email"
-                value={form.email}
-                onChange={(event) => updateField('email', event.target.value)}
-                required
-              />
-            </label>
+            <>
+              <label>
+                Email
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => updateField('email', event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Mobile number
+                <input
+                  inputMode="numeric"
+                  maxLength={10}
+                  value={form.mobileNumber}
+                  onChange={(event) => updateField('mobileNumber', event.target.value.replace(/\D/g, ''))}
+                  required
+                />
+              </label>
+            </>
           ) : (
             <label>
-              Email or Employee ID
+              Email, Mobile number or Employee ID
               <input
                 value={form.email}
                 onChange={(event) => updateField('email', event.target.value)}
