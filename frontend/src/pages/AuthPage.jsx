@@ -95,6 +95,9 @@ const AuthPage = ({ mode }) => {
               required
             />
           </label>
+          {!isSignup && (
+            <Link className="forgot-password-link" to="/forgot-password">Forgot password?</Link>
+          )}
           {isSignup && (
             <label>
               Role

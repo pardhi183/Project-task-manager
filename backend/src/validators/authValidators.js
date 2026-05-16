@@ -11,3 +11,18 @@ export const loginValidator = [
   body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required')
 ];
+
+export const forgotPasswordValidator = [
+  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail()
+];
+
+export const verifyPasswordOtpValidator = [
+  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('otp').trim().isLength({ min: 6, max: 6 }).isNumeric().withMessage('Enter the 6 digit OTP')
+];
+
+export const resetPasswordValidator = [
+  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('otp').trim().isLength({ min: 6, max: 6 }).isNumeric().withMessage('Enter the 6 digit OTP'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+];

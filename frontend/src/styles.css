@@ -72,6 +72,10 @@ a {
   box-shadow: var(--shadow);
 }
 
+.compact-auth-panel {
+  min-height: 560px;
+}
+
 .auth-copy {
   display: flex;
   flex-direction: column;
@@ -237,9 +241,20 @@ textarea:focus {
   text-align: center;
 }
 
-.form-switch a {
+.form-switch a,
+.forgot-password-link {
   color: var(--primary-dark);
   font-weight: 800;
+}
+
+.forgot-password-link {
+  justify-self: end;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
 }
 
 .app-shell {
@@ -603,6 +618,12 @@ textarea:focus {
   border-color: rgba(185, 28, 28, 0.25);
   background: #fff7f7;
   color: var(--danger);
+}
+
+.notice.success {
+  border-color: rgba(21, 128, 61, 0.24);
+  background: #f0fdf4;
+  color: var(--success);
 }
 
 .notice ul {

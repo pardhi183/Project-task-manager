@@ -3,6 +3,7 @@ import AppShell from './components/AppShell.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ProjectPage from './pages/ProjectPage.jsx';
 import ProjectsPage from './pages/ProjectsPage.jsx';
 import { useAuth } from './state/AuthContext.jsx';
@@ -22,6 +23,7 @@ const App = () => {
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />
       <Route path="/signup" element={<AuthPage mode="signup" />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route path="/" element={<DashboardPage />} />
