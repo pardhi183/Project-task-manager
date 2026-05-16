@@ -1,0 +1,159 @@
+Team Task Manager - Demo Video Teleprompter Script
+
+Suggested video length: 5 to 7 minutes
+
+1. Introduction
+
+Show:
+Open the live application login page.
+
+Say:
+Hello, my name is Atul, and this is my project Team Task Manager. It is a full-stack MERN application made for managing team projects, tasks, attendance, profiles, and notifications from one place.
+
+The reason I built this project is that in a real team, work is not only about creating tasks. We also need user approval, role-based access, attendance tracking, task status updates, and communication between admin and team members.
+
+
+2. Tech stack
+
+Show:
+Open the GitHub repository and show frontend and backend folders.
+
+Say:
+The frontend is built with React and Vite. The backend is built with Node.js and Express. MongoDB is used as the database with Mongoose models.
+
+For authentication, I used JWT tokens, and passwords are stored securely using bcrypt hashing.
+
+
+3. Signup and login
+
+Show:
+Open signup page.
+
+Say:
+On the signup page, a user can enter name, email, mobile number, password, and role. If the role is Employee, then employee ID is also required.
+
+After signup, the account goes into pending approval. The user can log in only after admin approval.
+
+Show:
+Open login page.
+
+Say:
+On login, the user selects the role and can log in using email, mobile number, or employee ID depending on the account type.
+
+
+4. Dashboard
+
+Show:
+Log in as admin and open dashboard.
+
+Say:
+This is the main dashboard. It shows live date and time, punch in and punch out buttons, task summary cards, assigned tasks, and attendance information.
+
+The cards show total assigned tasks, pending tasks, completed tasks, and overdue tasks.
+
+
+5. Attendance
+
+Show:
+Point to punch in and punch out.
+
+Say:
+Users can punch in when they start work and punch out when they finish. Admin can view attendance records for team members, including present days and today's punch timing.
+
+
+6. Sidebar and notifications
+
+Show:
+Point to sidebar.
+
+Say:
+The sidebar contains Profile, Dashboard, and Projects. For admin, Manage Employee and Manage Users are also visible.
+
+Show:
+Point to right notification panel.
+
+Say:
+The right panel is used for notifications. Admin can send a notification with title and message. Pending account approvals also appear here, so admin can approve new users from the same panel.
+
+
+7. Profile and profile management
+
+Show:
+Open Profile page.
+
+Say:
+The profile page shows user details like name, role, designation, profile picture, productivity, and serving time.
+
+Show:
+Open Manage Employee and Manage Users.
+
+Say:
+Admin can manage employee and user profiles separately. Admin can update name, designation, productivity, and profile picture.
+
+
+8. Projects
+
+Show:
+Open Projects page.
+
+Say:
+On the Projects page, admin can create a project by adding project name, description, target role, and team members.
+
+The member list changes based on the selected role, so the project is assigned to the correct group.
+
+
+9. Tasks
+
+Show:
+Open a project detail page.
+
+Say:
+Inside a project, admin can create tasks with title, due date, status, description, and assignees.
+
+Tasks support Todo, In Progress, and Done status. They can also be filtered by status and assignee.
+
+Users can update their own assigned task status, and admin can delete tasks when needed.
+
+
+10. Forgot password
+
+Show:
+Open forgot password page from login.
+
+Say:
+The forgot password flow uses registered mobile number and OTP. The user verifies the OTP and then creates a new password.
+
+On the backend, OTP expiry and wrong attempt limits are handled for better security.
+
+
+11. Backend structure
+
+Show:
+Open backend/src in code editor.
+
+Say:
+The backend is organized into models, controllers, routes, middleware, validators, and utilities.
+
+Models define MongoDB schemas. Controllers contain main logic. Routes define API endpoints. Middleware handles authentication, role checks, validation, database checks, and errors.
+
+
+12. Deployment
+
+Show:
+Open package.json and railway.json.
+
+Say:
+The project is ready for Railway deployment. The root package file has build and start scripts. In production, Express serves both the API and the React frontend build.
+
+
+13. Closing
+
+Show:
+Return to dashboard.
+
+Say:
+So this is Team Task Manager. It includes authentication, admin approval, role-based access, projects, tasks, attendance, profiles, notifications, forgot password with OTP, and deployment support.
+
+The main focus was to build a practical team management tool where admin can control the workflow and team members can clearly manage their assigned work.
+
+Thank you for watching my demo.
