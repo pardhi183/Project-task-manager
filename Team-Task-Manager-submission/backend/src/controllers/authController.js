@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import AdminLoginAlert from '../models/AdminLoginAlert.js';
 import User from '../models/User.js';
 import { sendPasswordResetOtp } from '../utils/mailer.js';
 import { signToken } from '../utils/token.js';
@@ -6,6 +7,18 @@ import { signToken } from '../utils/token.js';
 const authResponse = (user, statusCode, res) => {
   const token = signToken(user._id);
   res.status(statusCode).json({ token, user });
+};
+
+const createAdminLoginAlert = async (user, loginIdentifier, loginStatus) => {
+  if (user?.role !== 'Admin') return;
+
+  await AdminLoginAlert.create({
+    loginIdentifier,
+    adminName: user.name,
+    adminEmail: user.email,
+    loginStatus,
+    attemptedAt: new Date()
+  });
 };
 
 export const signup = async (req, res, next) => {
@@ -38,6 +51,7 @@ export const login = async (req, res, next) => {
     }
 
     if (user.failedLoginAttempts >= 5) {
+      await createAdminLoginAlert(user, loginValue, 'Blocked');
       return res.status(423).json({
         message: 'Too many wrong password attempts. Reset your password before logging in again',
         attemptsLeft: 0
@@ -47,6 +61,7 @@ export const login = async (req, res, next) => {
     if (!(await user.matchPassword(password))) {
       user.failedLoginAttempts += 1;
       await user.save({ validateBeforeSave: false });
+      await createAdminLoginAlert(user, loginValue, 'Wrong password');
       const attemptsLeft = Math.max(0, 5 - user.failedLoginAttempts);
       return res.status(401).json({
         message: `Wrong password. ${attemptsLeft} ${attemptsLeft === 1 ? 'try' : 'tries'} left out of 5`,
@@ -56,6 +71,7 @@ export const login = async (req, res, next) => {
 
     user.failedLoginAttempts = 0;
     await user.save({ validateBeforeSave: false });
+    await createAdminLoginAlert(user, loginValue, 'Successful');
     authResponse(user, 200, res);
   } catch (error) {
     next(error);

@@ -17,6 +17,8 @@ const attendanceSummary = async (userId) => {
 
 export const getAttendance = async (req, res, next) => {
   try {
+    const myAttendance = await attendanceSummary(req.user._id);
+
     if (req.user.role === 'Admin') {
       const users = await User.find({ role: { $in: ['User', 'Employee', 'Member'] } }).sort({ name: 1 });
       const attendance = await Promise.all(
@@ -25,10 +27,10 @@ export const getAttendance = async (req, res, next) => {
           ...(await attendanceSummary(user._id))
         }))
       );
-      return res.json({ attendance });
+      return res.json({ attendance, myAttendance });
     }
 
-    return res.json({ attendance: await attendanceSummary(req.user._id) });
+    return res.json({ attendance: myAttendance });
   } catch (error) {
     return next(error);
   }

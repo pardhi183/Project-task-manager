@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock3, LogIn, LogOut, ListTodo } from 'lucide-react';
+import { AlertTriangle, Bell, CalendarDays, CheckCircle2, Clock3, LogIn, LogOut, ListTodo, ShieldCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../api/client.js';
 import ErrorNotice from '../components/ErrorNotice.jsx';
@@ -10,17 +10,33 @@ const DashboardPage = () => {
   const [tasks, setTasks] = useState([]);
   const [counts, setCounts] = useState({ completed: 0, pending: 0, overdue: 0 });
   const [attendance, setAttendance] = useState(null);
+  const [myAttendance, setMyAttendance] = useState(null);
+  const [adminLoginAlerts, setAdminLoginAlerts] = useState([]);
+  const [now, setNow] = useState(new Date());
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isAdmin = user.role === 'Admin';
+
+  const loadAdminLoginAlerts = async () => {
+    if (!isAdmin) return;
+    const alertData = await apiRequest('/admin-login-alerts');
+    setAdminLoginAlerts(alertData.alerts || []);
+  };
 
   const loadTasks = async () => {
-    const [taskData, attendanceData] = await Promise.all([
+    const requests = [
       apiRequest('/tasks/mine'),
       apiRequest('/attendance')
-    ]);
+    ];
+
+    if (isAdmin) requests.push(apiRequest('/admin-login-alerts'));
+
+    const [taskData, attendanceData, alertData] = await Promise.all(requests);
     setTasks(taskData.tasks);
     setCounts(taskData.counts);
     setAttendance(attendanceData.attendance);
+    setMyAttendance(attendanceData.myAttendance || attendanceData.attendance);
+    if (alertData) setAdminLoginAlerts(alertData.alerts || []);
   };
 
   useEffect(() => {
@@ -28,6 +44,19 @@ const DashboardPage = () => {
       .catch(setError)
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isAdmin) return undefined;
+    const timer = window.setInterval(() => {
+      loadAdminLoginAlerts().catch(setError);
+    }, 15000);
+    return () => window.clearInterval(timer);
+  }, [isAdmin]);
 
   const updateStatus = async (taskId, status) => {
     try {
@@ -42,8 +71,27 @@ const DashboardPage = () => {
   };
 
   const total = tasks.length;
-  const isAdmin = user.role === 'Admin';
-  const myAttendance = isAdmin ? null : attendance;
+  const pendingAdminAlerts = adminLoginAlerts.filter((alert) => alert.status === 'Pending');
+  const formattedDate = now.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+  const formattedTime = now.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  const formatDateTime = (value) => {
+    if (!value) return 'Not marked';
+    return new Date(value).toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   const punch = async (type) => {
     try {
@@ -54,15 +102,56 @@ const DashboardPage = () => {
     }
   };
 
+  const approveAdminLogin = async (alertId) => {
+    try {
+      await apiRequest(`/admin-login-alerts/${alertId}/approve`, { method: 'PATCH' });
+      await loadAdminLoginAlerts();
+    } catch (apiError) {
+      setError(apiError);
+    }
+  };
+
   return (
     <div className="page-stack">
       <header className="page-header">
-        <div>
+        <div className="dashboard-greeting">
+          <div className="time-screen">
+            <CalendarDays size={20} />
+            <div>
+              <strong>{formattedTime}</strong>
+              <span>{formattedDate}</span>
+            </div>
+          </div>
           <p className="eyebrow">Dashboard</p>
           <h2>Good to see you, {user.name}</h2>
         </div>
       </header>
       <ErrorNotice error={error} />
+      {isAdmin && pendingAdminAlerts.length > 0 && (
+        <section className="admin-alert-panel">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Approval alerts</p>
+              <h3>Admin login attempts</h3>
+            </div>
+            <Bell size={22} />
+          </div>
+          <div className="admin-alert-list">
+            {pendingAdminAlerts.map((alert) => (
+              <article className="admin-alert-card" key={alert._id}>
+                <ShieldCheck size={22} />
+                <div>
+                  <strong>{alert.adminName || 'Admin account'}</strong>
+                  <span>{alert.loginIdentifier} • Password: hidden • {alert.loginStatus} • {formatDateTime(alert.attemptedAt)}</span>
+                </div>
+                <button className="secondary-button" type="button" onClick={() => approveAdminLogin(alert._id)}>
+                  Approve
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       <section className="punch-panel">
         <button
           className="punch-button punch-in"
@@ -80,6 +169,16 @@ const DashboardPage = () => {
           <LogOut size={22} />
           Punch Out
         </button>
+      </section>
+      <section className="punch-time-panel">
+        <article>
+          <span>Punch in time</span>
+          <strong>{formatDateTime(myAttendance?.today?.punchInAt)}</strong>
+        </article>
+        <article>
+          <span>Punch out time</span>
+          <strong>{formatDateTime(myAttendance?.today?.punchOutAt)}</strong>
+        </article>
       </section>
       <section className="metric-grid">
         <article className="metric-card total">
@@ -113,14 +212,18 @@ const DashboardPage = () => {
               <span>Name</span>
               <span>Role</span>
               <span>Present days</span>
-              <span>Today</span>
+              <span>Today punch time</span>
             </div>
             {(attendance || []).map((item) => (
               <div className="attendance-row" key={item.user._id}>
                 <span>{item.user.name}</span>
                 <span>{item.user.role}</span>
                 <span>{item.presentDays}</span>
-                <span>{item.isPunchedIn ? 'Punched in' : item.today?.punchOutAt ? 'Punched out' : 'Not marked'}</span>
+                <span>
+                  {item.today
+                    ? `${formatDateTime(item.today.punchInAt)} - ${item.today.punchOutAt ? formatDateTime(item.today.punchOutAt) : 'Still in'}`
+                    : 'Not marked'}
+                </span>
               </div>
             ))}
           </div>

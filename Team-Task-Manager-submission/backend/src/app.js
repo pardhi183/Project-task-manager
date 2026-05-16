@@ -6,6 +6,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import attendanceRoutes from './routes/attendanceRoutes.js';
+import adminLoginAlertRoutes from './routes/adminLoginAlertRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
@@ -71,6 +72,7 @@ app.use('/api/users', requireDatabase, userRoutes);
 app.use('/api/projects', requireDatabase, projectRoutes);
 app.use('/api/tasks', requireDatabase, taskRoutes);
 app.use('/api/attendance', requireDatabase, attendanceRoutes);
+app.use('/api/admin-login-alerts', requireDatabase, adminLoginAlertRoutes);
 
 if (shouldServeClient && fs.existsSync(clientIndex)) {
   const assetsDir = path.join(clientDist, 'assets');

@@ -371,6 +371,39 @@ textarea:focus {
   font-size: clamp(1.7rem, 4vw, 2.5rem);
 }
 
+.dashboard-greeting {
+  display: grid;
+  gap: 12px;
+}
+
+.time-screen {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 72%);
+  color: #1d4ed8;
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.1);
+}
+
+.time-screen strong,
+.time-screen span {
+  display: block;
+}
+
+.time-screen strong {
+  font-size: 1.18rem;
+}
+
+.time-screen span {
+  color: #475569;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
 .metric-grid,
 .project-grid,
 .task-grid {
@@ -486,6 +519,73 @@ textarea:focus {
 
 .punch-out {
   background: #b91c1c;
+}
+
+.punch-time-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.punch-time-panel article {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 10px 30px rgba(18, 38, 43, 0.04);
+}
+
+.punch-time-panel span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.punch-time-panel strong {
+  color: var(--ink);
+  font-size: 1.08rem;
+}
+
+.admin-alert-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 74%);
+  box-shadow: 0 14px 36px rgba(217, 119, 6, 0.1);
+}
+
+.admin-alert-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-alert-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.admin-alert-card svg {
+  color: #d97706;
+}
+
+.admin-alert-card strong,
+.admin-alert-card span {
+  display: block;
+}
+
+.admin-alert-card span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .attendance-summary-grid {
@@ -730,6 +830,7 @@ textarea:focus {
   .form-grid,
   .task-form-grid,
   .punch-panel,
+  .punch-time-panel,
   .attendance-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -751,9 +852,15 @@ textarea:focus {
   .task-form-grid,
   .task-grid,
   .punch-panel,
+  .punch-time-panel,
   .attendance-summary-grid,
   .attendance-row {
     grid-template-columns: 1fr;
+  }
+
+  .admin-alert-card {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
   }
 
   .page-header,
